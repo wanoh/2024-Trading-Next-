@@ -56,6 +56,7 @@ const ChatLog = (props: ChatLogType) => {
   const formattedChatData = () => {
     let chatLog: MessageType[] | [] = []
     if (data.chat) {
+      console.log('ChatLog', data.chat.chat)
       chatLog = data.chat.chat
     }
 

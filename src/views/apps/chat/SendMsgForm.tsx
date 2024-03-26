@@ -41,6 +41,7 @@ const SendMsgForm = (props: SendMsgComponentType) => {
   const handleSendMsg = (e: SyntheticEvent) => {
     e.preventDefault()
     if (store && store.selectedChat && msg.trim().length) {
+      console.log(' ...store.selectedChat, message: msg ', { ...store.selectedChat, message: msg })
       dispatch(sendMsg({ ...store.selectedChat, message: msg }))
     }
     setMsg('')

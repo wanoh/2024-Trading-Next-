@@ -8,6 +8,10 @@ import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 
+// ** Finnhub Finanacial Instruments
+import { ApiClient, DefaultApi } from 'finnhub'
+import { favSymbols, symbolsName } from './data'
+
 interface WebSocketMessage {
   c: null
   p: number // Last price
@@ -18,61 +22,82 @@ interface WebSocketMessage {
 
 const WebSocketComponent: React.FC = () => {
   const [data, setData] = useState<WebSocketMessage[]>([])
+
+  const [forexSymbols, setForexSymbols] = useState([])
+
   console.log('Saved Data', data)
 
-  const mergeArraysByS = ((array : []) => {
-    let lastObjectsMap: {} = {};
+  const mergeArraysByS = ((array: []) => {
+    const lastObjectsMap: {} = {}
 
-    return (array) => {
+    return array => {
       // Iterate through array
       for (const currentObject of array) {
         // If 's' value is not in the map, add it
         if (currentObject.s && !(currentObject.s in lastObjectsMap)) {
-          lastObjectsMap[currentObject.s] = currentObject;
+          lastObjectsMap[currentObject.s] = currentObject
         } else if (currentObject.s) {
           // If 's' value is in the map, update it
-          lastObjectsMap[currentObject.s] = { ...currentObject };
+          lastObjectsMap[currentObject.s] = { ...currentObject }
         }
       }
 
       // Extract values from the map to get the desired array
-      const resultArray = Object.values(lastObjectsMap);
+      const resultArray = Object.values(lastObjectsMap)
 
       // Display the resulting array
-      console.log(resultArray);
+      console.log(resultArray)
 
-      return resultArray;
-    };
-  })();
+      return resultArray
+    }
+  })()
+
+  const getForexSymbols = () => {
+    const api_key = ApiClient.instance.authentications['api_key']
+    api_key.apiKey = 'clt319pr01qhnjgr3e70clt319pr01qhnjgr3e7g'
+
+    const finnhubClient = new DefaultApi()
+
+    finnhubClient.forexSymbols('OANDA', (error, data, response) => {
+      console.log(data)
+      setForexSymbols(data)
+    })
+  }
 
   useEffect(() => {
+    getForexSymbols()
     const socket = new WebSocket('wss://ws.finnhub.io?token=clt319pr01qhnjgr3e70clt319pr01qhnjgr3e7g')
 
     // Connection opened -> Subscribe
     socket.addEventListener('open', function (event) {
       console.log('WebSocket connection opened')
 
-      socket.send(JSON.stringify({'type':'subscribe', 'symbol': 'AAPL'}))
-      socket.send(JSON.stringify({'type':'subscribe', 'symbol': 'MSFT'}))
-      socket.send(JSON.stringify({'type':'subscribe', 'symbol': 'AMZN'}))
-      socket.send(JSON.stringify({'type':'subscribe', 'symbol': 'IC MARKETS:1'}))
-      socket.send(JSON.stringify({ type: 'subscribe', symbol: 'BINANCE:BTCUSDT' }))
-      socket.send(JSON.stringify({ type: 'subscribe', symbol: 'BINANCE:LTCBTC' }))
-    })
+      // forexSymbols.map(sym => socket.send(JSON.stringify({ type: 'subscribe', symbol: `${sym.symbol}` })))
+      favSymbols.map(sym => socket.send(JSON.stringify({ type: 'subscribe', symbol: `${sym.symbol}` })))
 
+      // socket.send(JSON.stringify({ type: 'subscribe', symbol: 'AAPL' }))
+
+      // socket.send(JSON.stringify({ type: 'subscribe', symbol: 'MSFT' }))
+      // socket.send(JSON.stringify({ type: 'subscribe', symbol: 'GOOGL' }))
+      // socket.send(JSON.stringify({ type: 'subscribe', symbol: 'GOOG' }))
+
+      // socket.send(JSON.stringify({ type: 'subscribe', symbol: 'AMZN' }))
+      // socket.send(JSON.stringify({ type: 'subscribe', symbol: 'META' }))
+      // socket.send(JSON.stringify({ type: 'subscribe', symbol: 'TSLA' }))
+
+      // socket.send(JSON.stringify({ type: 'subscribe', symbol: 'IC MARKETS:1' }))
+      // socket.send(JSON.stringify({ type: 'subscribe', symbol: 'BINANCE:BTCUSDT' }))
+      // socket.send(JSON.stringify({ type: 'subscribe', symbol: 'BINANCE:LTCBTC' }))
+    })
 
     // Listen for messages
     socket.addEventListener('message', function (event) {
       const messageData: WebSocketMessage = JSON.parse(event.data)
       console.log('Message from server ', messageData)
 
-
-
       // Check if data is an array
       if (Array.isArray(messageData.data)) {
-
-       setData(mergeArraysByS(messageData.data))
-
+        setData(mergeArraysByS(messageData.data))
 
         // // Get the last object from the array
         // const lastObject = messageData.data[messageData.data.length - 1]
@@ -128,13 +153,26 @@ const WebSocketComponent: React.FC = () => {
                   }
                 }}
               >
-                <TableCell component='th' scope='row' sx={{ position: 'sticky', left: 0, backgroundColor: '#2F3349' }}>
-                  {row.s}
+                <TableCell
+                  component='th'
+                  scope='row'
+                  style={{ color: 'white' }}
+                  sx={{ position: 'sticky', left: 0, backgroundColor: '#2F3349' }}
+                >
+                  {symbolsName[row.s]}
                 </TableCell>
-                <TableCell align='left'>{row.p.toFixed(2)}</TableCell>
-                <TableCell align='left'>{row.p.toFixed(2)}</TableCell>
-                <TableCell align='left'>{/* Add content based on your data structure */}</TableCell>
-                <TableCell align='left'>{/* Add content based on your data structure */}</TableCell>
+                <TableCell align='left' style={{ color: 'white' }}>
+                  {row.p.toFixed(5)}
+                </TableCell>
+                <TableCell align='left' style={{ color: 'white' }}>
+                  {row.p.toFixed(4)}
+                </TableCell>
+                <TableCell align='left' style={{ color: 'white' }}>
+                  {/* Add content based on your data structure */}
+                </TableCell>
+                <TableCell align='left' style={{ color: 'white' }}>
+                  {/* Add content based on your data structure */}
+                </TableCell>
               </TableRow>
             </>
           ))}

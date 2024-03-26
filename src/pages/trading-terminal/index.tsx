@@ -9,6 +9,8 @@ import TradingViewWidget from 'src/views/trading-terminal/Chart/TradingViewChart
 import HistoryTable from 'src/views/trading-terminal/History/Table'
 import OrderPanel from 'src/views/trading-terminal/OrderPanel/OrderPanel'
 
+import ForexSymbols from 'src/views/trading-terminal/Symbols/Forex'
+
 const TradingTerminal = () => {
   return (
     <ApexChartWrapper>
@@ -18,6 +20,7 @@ const TradingTerminal = () => {
         </Grid>
         <Grid item xs={12} md={6}>
           <TradingViewWidget />
+          <ForexSymbols />
           <HistoryTable />
         </Grid>
         <Grid item xs={12} md={3}>

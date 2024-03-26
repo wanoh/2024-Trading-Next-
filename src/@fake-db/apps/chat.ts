@@ -289,10 +289,14 @@ const data: { chats: ChatsObj[]; contacts: ContactType[]; profileUser: ProfileUs
 }
 
 const reorderChats = (arr: ChatsObj[], from: number, to: number) => {
+  console.log('Arr', arr)
   const item = arr.splice(from, 1)
+  console.log('item from Arr', item)
 
   // ** Move the item to its new position
   arr.splice(to, 0, item[0])
+
+  console.log('Final Arr', arr.splice(to, 0, item[0]))
 }
 
 // ------------------------------------------------
@@ -304,6 +308,8 @@ mock.onGet('/apps/chat/chats-and-contacts').reply(() => {
 
     // @ts-ignore
     contact.chat = { id: chat.id, unseenMsgs: chat.unseenMsgs, lastMessage: chat.chat[chat.chat.length - 1] }
+
+    console.log('+++Contact+++', contact)
 
     return contact
   })
@@ -340,7 +346,7 @@ mock.onGet('/apps/chat/get-chat').reply(config => {
   userId = Number(userId)
 
   const chat = data.chats.find((c: ChatsObj) => c.id === userId)
-
+console.log('Chats from fake DB', chat)
   if (chat) chat.unseenMsgs = 0
   const contact = data.contacts.find((c: ContactType) => c.id === userId)
 
@@ -356,7 +362,7 @@ mock.onGet('/apps/chat/get-chat').reply(config => {
 mock.onPost('/apps/chat/send-msg').reply(config => {
   // Get event from post data
   const { obj } = JSON.parse(config.data).data
-
+console.log('Msg Obj passed', obj)
   let activeChat = data.chats.find((chat: ChatsObj) => chat.id === obj.contact.id)
 
   const newMessageData = {
@@ -387,10 +393,12 @@ mock.onPost('/apps/chat/send-msg').reply(config => {
     activeChat.chat.push(newMessageData)
   }
   const response = { newMessageData, id: obj.contact.id }
+  console.log('Response msg', response)
 
   // @ts-ignore
   if (isNewChat) response.chat = activeChat
 
+  console.log('Chat Index',  data.chats.findIndex(i => i.id === response.id))
   reorderChats(
     data.chats,
     data.chats.findIndex(i => i.id === response.id),
@@ -399,3 +407,4 @@ mock.onPost('/apps/chat/send-msg').reply(config => {
 
   return [201, { response }]
 })
+

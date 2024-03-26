@@ -18,6 +18,7 @@ export const fetchUserProfile = createAsyncThunk('appChat/fetchUserProfile', asy
 // ** Fetch Chats & Contacts
 export const fetchChatsContacts = createAsyncThunk('appChat/fetchChatsContacts', async () => {
   const response = await axios.get('/apps/chat/chats-and-contacts')
+  console.log('Contacts and chats', response.data)
 
   return response.data
 })
@@ -26,11 +27,14 @@ export const fetchChatsContacts = createAsyncThunk('appChat/fetchChatsContacts',
 export const selectChat = createAsyncThunk(
   'appChat/selectChat',
   async (id: number | string, { dispatch }: { dispatch: Dispatch<any> }) => {
+    console.log('id of selected user', id)
     const response = await axios.get('/apps/chat/get-chat', {
       params: {
         id
       }
     })
+
+    console.log('Selected User', response.data)
     await dispatch(fetchChatsContacts())
 
     return response.data
